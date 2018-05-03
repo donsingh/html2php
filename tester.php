@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require('vendor/autoload.php');
-require('htmleat.php');
+require('html2php.php');
 
 use PHPUnit\Framework\TestCase;
 
@@ -24,14 +24,14 @@ class htmleatTest extends TestCase
     public function testCannotStartWithNoFile()
     {
         $this->expectExceptionMessage("No file passed");
-        $eater = new HTMLeat();
+        $eater = new HTML2PHP();
     }
 
     public function testCannotStartWithMissingFile()
     {
         $target = $this->path . "nonexistantFolder/noFile.html";
         $this->expectExceptionMessage("File {$target} not found");
-        $eater = new HTMLeat($target);
+        $eater = new HTML2PHP($target);
     }
     
     public function testCanOpenFileAndRead()
@@ -39,7 +39,7 @@ class htmleatTest extends TestCase
         //runs on assumption that testfile has <body> tag
         $target = $this->path . "testfiles/" . $this->testfiles[0];
 
-        $eater = new HTMLeat($target);
+        $eater = new HTML2PHP($target);
         $raw   = $eater->getHTMLString();
 
         $this->assertContains("body", $raw);
@@ -50,7 +50,7 @@ class htmleatTest extends TestCase
         //runs on assumption that testfile doesnt have <body> tag
         $target = $this->path . "composer.json";
 
-        $eater = new HTMLeat($target);
+        $eater = new HTML2PHP($target);
         $raw   = $eater->getHTMLString();
 
         $this->assertNotContains("body", $raw);

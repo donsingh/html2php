@@ -1,7 +1,7 @@
 <?php
 
 
-class HTMLeat
+class HTML2PHP
 {
     protected $raw_string;
     protected $regkey = "/<[^>]*>/";
@@ -32,8 +32,8 @@ class HTMLeat
         preg_match_all($this->regkey, $this->getHTMLString(), $out, PREG_OFFSET_CAPTURE);
         $matches = $this->removeIgnores($out[0]);
         
+        //TODO Create the structure
         $struct = array();
-
         
     }
 
