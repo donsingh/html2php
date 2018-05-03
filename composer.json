@@ -1,0 +1,13 @@
+{
+    "name": "donsingh/htmleat",
+    "authors": [
+        {
+            "name": "donsingh",
+            "email": "dbmsph@gmail.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^7"
+    }
+}
