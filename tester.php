@@ -17,7 +17,7 @@ class htmleatTest extends TestCase
     function setUp()
     {
         $this->testfiles = ['simple.html'];
-        $this->path      = "/var/www/html/htmleat/";
+        $this->path      = __DIR__;
     }
 
     
