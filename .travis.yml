@@ -4,7 +4,7 @@ php:
   - '5.6'
   - '7.0'
   - '7.1'
-install: 
-  -cd html2php
-  -composer install
+# install: 
+#   -cd html2php
+#   -composer install
 script: vendor/bin/phpunit --verbose --testdox --bootstrap vendor/autoload.php tester.php
