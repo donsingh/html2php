@@ -6,8 +6,9 @@ class HTML2PHP
     protected $raw_string;
     protected $regkey = "/<[^>]*>/";
     protected $flat;
-    protected $tree   = NULL;
-    public    $ignore = array("doctype");
+    protected $tree    = NULL;
+    protected $matches = array();
+    public    $ignore  = array("doctype");
     
     public function __construct( $file = null) {
         if($file == NULL){
@@ -35,6 +36,7 @@ class HTML2PHP
         foreach($this->flat as $index => $element){
             $temp = array(
                 "tagname"    => $this->get_pure_tag($element[0]),
+                "dirtytag"   => $element[0],
                 "start"      => $this->flat[$index],
                 "startIndex" => $index,
                 "children"   => array(),
@@ -42,15 +44,59 @@ class HTML2PHP
             );
 
             $temp['endIndex'] = $this->findClosing($index);
-            
             if($temp['endIndex'] > 0){
                 $temp['end'] = $this->flat[ $temp['endIndex'] ];
+
+                $readStart = $temp["start"][1] + strlen($temp['dirtytag']);
+                $readEnd = $temp['end'][1] - $readStart;
+                $temp['text'] = substr($this->raw_string, $readStart, $readEnd);
             }
+
+            $temp['attributes'] = $this->getAttributes($element[0]);
+            
 
             $this->flat[$index] = $temp;
         }
 
         $this->list2tree();
+    }
+
+    private function getAttributes($elem)
+    {
+        $attr        = array();
+        $word        = "";
+        $current     = "";
+        $classifying = false;
+        
+        for($i=0; $i < strlen($elem); $i++){
+            $char = $elem[$i];
+            
+            if($char == "="){
+                $current = $word;
+                $classifying = true;
+                $word="";
+            }
+            
+            $word .= $char;
+
+            if($char == " " && $classifying == false){
+                $word = "";
+            }
+            
+            if($classifying == true && strlen($word) > 2 && $char == $word[1]){
+                $temp = trim($word);
+                $temp = str_replace("'", "", $temp);
+                $temp = str_replace('"', "", $temp);
+                $temp = str_replace("=", "", $temp);
+                $temp = explode(" ", $temp);
+
+                $attr[$current] = $temp;
+                $word = "";
+                $classifying = false;
+            }
+        }
+
+        return $attr;
     }
 
     public function list2tree($start = NULL, $end = NULL)
@@ -77,6 +123,63 @@ class HTML2PHP
             return $children;
         }
         
+    }
+
+    public function find($selector = NULL)
+    {
+        if($selector == NULL || $selector == ""){
+            throw new Exception("Missing parameter for find()");
+        }
+
+        $this->matches = array();
+
+        $type = substr($selector, 0, 1);
+        
+        //TODO:: FIX FOR elem > elem.class + elem#id
+        
+        if($type == "#"){
+            //search by id
+        }else if($type == "."){
+            //search by class
+            $this->traverse($this->tree["children"], "class");
+        }else{
+            $this->traverse($this->tree["children"], $selector);
+        }
+        
+
+        print_r($this->matches);
+    }
+
+    private function traverse($list, $search, $type = "tagname")
+    {
+        foreach($list as $props){
+
+            $temp = NULL;
+
+            if(is_array($props['children']) && count( $props['children']) > 0){
+                $this->traverse($props['children'], $search);
+            }
+            
+            if($type == "tagname"){
+                if($props["tagname"] == "<{$search}>"){
+                    $temp = $props;
+                }
+            }else if($type == "class"){
+                if(isset($props['attributes']) && isset($props['attributes']['class']) && count($props['attributes']['class']) > 0){
+                    foreach($props['attributes']['class'] as $className){
+                        if(strcasecmp($className,$search)){
+                            $temp = $props;
+                        }
+                    }
+                }
+            }
+
+            if($temp !== NULL){
+                unset($temp['children']);
+                $this->matches[] = $temp;
+            }
+            
+        }
     }
 
     public function print_array()
