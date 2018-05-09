@@ -28,6 +28,8 @@ class HTML2PHP
         $temp = array();
         preg_match_all($this->regkey, $this->getHTMLString(), $temp, PREG_OFFSET_CAPTURE);
         $this->flat = $temp[0];
+
+        $this->convert();
     }
 
     public function convert()
@@ -146,8 +148,7 @@ class HTML2PHP
             $this->traverse($this->tree["children"], $selector);
         }
         
-
-        print_r($this->matches);
+        return $this->matches;
     }
 
     private function traverse($list, $search, $type = "tagname")
@@ -157,7 +158,7 @@ class HTML2PHP
             $temp = NULL;
 
             if(is_array($props['children']) && count( $props['children']) > 0){
-                $this->traverse($props['children'], $search);
+                $this->traverse($props['children'], $search, $type);
             }
             
             if($type == "tagname"){
@@ -165,8 +166,11 @@ class HTML2PHP
                     $temp = $props;
                 }
             }else if($type == "class"){
+                echo "hahaha";
+                $search = substr($search, 1);
                 if(isset($props['attributes']) && isset($props['attributes']['class']) && count($props['attributes']['class']) > 0){
                     foreach($props['attributes']['class'] as $className){
+                        // echo $className."\n";
                         if(strcasecmp($className,$search)){
                             $temp = $props;
                         }
@@ -182,11 +186,12 @@ class HTML2PHP
         }
     }
 
-    public function print_array()
+    public function getArray()
     {
-        echo "<pre>";
-        print_r($this->tree);
-        echo "</pre>";
+        // echo "<pre>";
+        // print_r($this->tree);
+        // echo "</pre>";
+        return $this->tree;
     }
 
     private function get_pure_tag($dirty)
@@ -217,33 +222,6 @@ class HTML2PHP
     {
         return $this->raw_string;
     }
-
-    // function removeIgnores($list){
-    //     $new = array();
-    //     foreach($list as $index => $item){
-    //         if(!isIgnore($item[0])){
-    //             $new[] = $item;
-    //         }
-    //     }
-    //     return $new;
-    // }
-
-    // function getHTMLString()
-    // {
-    //     return file_get_contents("testfiles/simple.html");
-    // }
-
-    // function isIgnore($tag)
-    // {
-    //     $ignore = array("doctype", "html", "/html", "<br");
-    //     foreach($ignore as $target){
-    //         if( strripos( $tag , $target) !== FALSE){
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-        
-    // }
     
     private function findClosing($pos)
     {
