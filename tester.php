@@ -45,16 +45,14 @@ class htmleatTest extends TestCase
         $this->assertContains("body", $raw);
     }
 
-    public function testNoHTMLTag()
+    public function testNoHtmlTag()
     {
+        $this->expectExceptionMessage("Failed to parse file!");
+        
         //runs on assumption that testfile doesnt have <body> tag
         $target = $this->path . "composer.json";
-
         $eater = new HTML2PHP($target);
         $raw   = $eater->getHTMLString();
-
-        $this->assertNotContains("body", $raw);
-
-        $eater->read();
+        
     }
 }

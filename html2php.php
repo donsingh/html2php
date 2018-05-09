@@ -28,12 +28,15 @@ class HTML2PHP
         $temp = array();
         preg_match_all($this->regkey, $this->getHTMLString(), $temp, PREG_OFFSET_CAPTURE);
         $this->flat = $temp[0];
-
         $this->convert();
     }
 
     public function convert()
     {
+        if(count($this->flat) < 6){
+            throw new Exception("Failed to parse file!");
+        }
+        
         $struct = array();
         foreach($this->flat as $index => $element){
             $temp = array(
@@ -59,6 +62,13 @@ class HTML2PHP
 
             $this->flat[$index] = $temp;
         }
+
+        // $remove = array("<html", "<body>");
+        // foreach($this->flat as $index => $element){
+        //     if(in_array($element['tagname'], $remove)){
+        //         $this->flat = $element['children'];
+        //     }
+        // }
 
         $this->list2tree();
     }
@@ -243,7 +253,7 @@ class HTML2PHP
         return -1;
     }
     
-    private function isClosingTag($tag)
+    public function isClosingTag($tag)
     {
         if(substr($tag,1,1) == "/"){
             return true;
